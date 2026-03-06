@@ -286,8 +286,7 @@ function isiDropdownProduk() {
 
   for(let bulan=1; bulan<=12; bulan++){
 
-    if(bulanFilter && bulan > bulanFilter) break;
-
+  if(bulanFilter && bulan > bulanFilter) break;
     let masuk = 0;
     let keluar = 0;
 
@@ -310,7 +309,7 @@ function isiDropdownProduk() {
       const bulanData = new Date(r[0]).getUTCMonth() + 1;
       const qty = Number(r[4]) || 0;
 
-      if(bulanData === bulan){
+      if(bulanData === bulan && bulan < bulanFilter){
         if(!produkFilter || produk === produkFilter){
           keluar += qty;
         }
@@ -769,6 +768,7 @@ exportOutletBtn.addEventListener("click", () => {
 </body>
 
 </html>
+
 
 
 
