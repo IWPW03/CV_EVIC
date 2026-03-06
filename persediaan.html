@@ -251,17 +251,11 @@ let totalNilai = 0;
         if(d.bulan===b) jual+=Number(p[4])||0;
       });
 
-      if(b < bulanDipilih){
-  stok += beli - jual; // menghitung saldo sebelum bulan dipilih
-}
-
-if(b === bulanDipilih){
-  saldoAwal = stok; // stok sebelum transaksi bulan ini
-  masuk = beli;
-  keluar = jual;
-
-  stok += beli - jual; // baru dihitung menjadi saldo akhir
-}
+      if(b===bulanDipilih){
+        saldoAwal=stok;
+        masuk=beli;
+        keluar=jual;
+      }
 
       stok+=beli-jual;
     }
@@ -538,8 +532,6 @@ document.querySelectorAll(".btn-kategori").forEach(btn=>{
 </body>
 
 </html>
-
-
 
 
 
