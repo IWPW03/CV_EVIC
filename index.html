@@ -270,7 +270,9 @@ function isiDropdownProduk() {
   });
 }
        
-       function hitungStokRolling(bulanFilter, produkFilter){
+      function hitungStokRolling(bulanFilter, produkFilter){
+
+  bulanFilter = Number(bulanFilter);
 
   let saldo = 0;
 
@@ -284,11 +286,8 @@ function isiDropdownProduk() {
     }
   });
 
-  for(let bulan=1; bulan<=12; bulan++){
-
-  if(bulanFilter && bulan > bulanFilter) break;
-    let masuk = 0;
-    let keluar = 0;
+  // LOOP BULAN
+  for(let bulan=1; bulan<=bulanFilter; bulan++){
 
     // STOK MASUK
     persediaan.forEach(r=>{
@@ -298,29 +297,23 @@ function isiDropdownProduk() {
 
       if(bulanData === bulan){
         if(!produkFilter || produk === produkFilter){
-          masuk += qty;
+          saldo += qty;
         }
       }
     });
 
-    // STOK KELUAR (PENJUALAN)
+    // STOK KELUAR (bulan sebelumnya)
     penjualanRaw.forEach(r=>{
       const produk = r[3];
       const bulanData = new Date(r[0]).getUTCMonth() + 1;
       const qty = Number(r[4]) || 0;
 
-      if(bulanData === bulan && bulan < bulanFilter){
+      if(bulanData === bulan-1){
         if(!produkFilter || produk === produkFilter){
-          keluar += qty;
+          saldo -= qty;
         }
       }
     });
-
-    if(bulan === 1){
-      saldo = saldo + masuk;
-    }else{
-      saldo = (saldo - keluar) + masuk;
-    }
 
   }
 
@@ -768,6 +761,7 @@ exportOutletBtn.addEventListener("click", () => {
 </body>
 
 </html>
+
 
 
 
