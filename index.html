@@ -354,6 +354,17 @@ function updateKPI() {
     let totalStok = hitungStokRolling(bulanDipilih, produkDipilih);
 
     // =============================
+   // MASTER PRODUK
+  // =============================
+persediaan.forEach(r => {
+
+  const produk = r[1];
+
+  if (produk) semuaProdukSet.add(produk);
+
+});
+
+    // =============================
     // MASTER OUTLET
     // =============================
     masterOutlet.forEach(r => {
@@ -758,6 +769,7 @@ exportOutletBtn.addEventListener("click", () => {
 </body>
 
 </html>
+
 
 
 
