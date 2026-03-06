@@ -270,54 +270,51 @@ function isiDropdownProduk() {
   });
 }
        
-      function hitungStokRolling(bulanFilter, produkFilter){
+     function hitungStokRolling(bulanFilter, produkFilter){
 
   bulanFilter = Number(bulanFilter);
 
-  let saldo = 0;
+  let saldoAwal = 0;
+  let masuk = 0;
+  let keluar = 0;
 
-  // SALDO AWAL
+  // SALDO AWAL MASTER
   masterProduk.forEach(r=>{
     const produk = r[1];
-    const saldoAwal = Number(r[2]) || 0;
+    const saldo = Number(r[2]) || 0;
 
     if(!produkFilter || produk === produkFilter){
-      saldo += saldoAwal;
+      saldoAwal += saldo;
     }
   });
 
-  // LOOP BULAN
-  for(let bulan=1; bulan<=bulanFilter; bulan++){
+  // STOK MASUK BULAN TERPILIH
+  persediaan.forEach(r=>{
+    const produk = r[1];
+    const bulanData = new Date(r[0]).getUTCMonth() + 1;
+    const qty = Number(r[5]) || 0;
 
-    // STOK MASUK
-    persediaan.forEach(r=>{
-      const produk = r[1];
-      const bulanData = new Date(r[0]).getUTCMonth() + 1;
-      const qty = Number(r[5]) || 0;
-
-      if(bulanData === bulan){
-        if(!produkFilter || produk === produkFilter){
-          saldo += qty;
-        }
+    if(bulanData === bulanFilter){
+      if(!produkFilter || produk === produkFilter){
+        masuk += qty;
       }
-    });
+    }
+  });
 
-    // STOK KELUAR (bulan sebelumnya)
-    penjualanRaw.forEach(r=>{
-      const produk = r[3];
-      const bulanData = new Date(r[0]).getUTCMonth() + 1;
-      const qty = Number(r[4]) || 0;
+  // STOK KELUAR BULAN TERPILIH
+  penjualanRaw.forEach(r=>{
+    const produk = r[3];
+    const bulanData = new Date(r[0]).getUTCMonth() + 1;
+    const qty = Number(r[4]) || 0;
 
-      if(bulanData === bulan-1){
-        if(!produkFilter || produk === produkFilter){
-          saldo -= qty;
-        }
+    if(bulanData === bulanFilter){
+      if(!produkFilter || produk === produkFilter){
+        keluar += qty;
       }
-    });
+    }
+  });
 
-  }
-
-  return saldo;
+  return saldoAwal + masuk;
 }
 
 /* =======================
@@ -761,6 +758,7 @@ exportOutletBtn.addEventListener("click", () => {
 </body>
 
 </html>
+
 
 
 
