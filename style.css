@@ -511,7 +511,6 @@ border-collapse:collapse;
 
 .modal-content{
 max-height:80vh;
-overflow-y:auto;
 }
 
 #detailProdukOutlet th,
@@ -519,7 +518,20 @@ overflow-y:auto;
 border:1px solid #ddd;
 padding:6px;
 text-align:left;
+position:sticky;
+top:0;
+background:white;
+z-index:1;
 }
+
+
+.table-scroll{
+max-height:260px;
+overflow-y:auto;
+border:1px solid #ddd;
+border-radius:6px;
+}
+
 
 
 
