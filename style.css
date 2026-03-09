@@ -470,9 +470,13 @@ tbody tr:hover {
 
 .modal-content{
   background:white;
-  padding:25px;
+  padding:20px;
   border-radius:10px;
-  width:350px;
+  width:420px;
+
+  max-height:80vh;
+  overflow-y:auto;
+
   animation: modalFade 0.25s ease;
 }
 
@@ -497,6 +501,15 @@ tbody tr:hover {
     transform:translateY(0);
     opacity:1;
   }
+}
+#detailProdukOutlet{
+  margin-top:10px;
+}
+
+#detailProdukBody{
+  display:block;
+  max-height:250px;
+  overflow-y:auto;
 }
 
 
