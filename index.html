@@ -632,7 +632,18 @@ function renderOutletStatus(allOutlet, outletTransaksi) {
     });
 
     const div = document.createElement("div");
-    div.className = "outlet-row";
+div.className = "outlet-row";
+div.style.cursor = "pointer";
+
+div.onclick = () => {
+  showOutletDetail(outlet);
+};
+
+      function showOutletDetail(outlet){
+
+  alert("Outlet dipilih: " + outlet);
+
+}
 
     div.innerHTML = `
       <span>${outlet}</span>
@@ -765,6 +776,7 @@ exportOutletBtn.addEventListener("click", () => {
 </body>
 
 </html>
+
 
 
 
