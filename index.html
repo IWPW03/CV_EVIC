@@ -641,9 +641,19 @@ div.onclick = () => {
 
       function showOutletDetail(outlet){
 
-  alert("Outlet dipilih: " + outlet);
+  const modal = document.getElementById("outletModal");
+
+  document.getElementById("modalOutletNama").textContent = outlet;
+
+  const bulanText = filterBulan.options[filterBulan.selectedIndex].text;
+  document.getElementById("modalOutletBulan").textContent = bulanText;
+
+  modal.style.display = "flex";
 
 }
+      document.getElementById("closeModal").onclick = () => {
+  document.getElementById("outletModal").style.display = "none";
+};
 
     div.innerHTML = `
       <span>${outlet}</span>
@@ -773,9 +783,35 @@ exportOutletBtn.addEventListener("click", () => {
 });
 
 </script>
+
+    <!-- MODAL DETAIL OUTLET -->
+<div id="outletModal" class="modal">
+  <div class="modal-content">
+
+    <div class="modal-header">
+      <h3 id="modalOutletTitle">Detail Outlet</h3>
+      <span id="closeModal">&times;</span>
+    </div>
+
+    <div class="modal-body">
+      <p><b>Outlet :</b> <span id="modalOutletNama"></span></p>
+      <p><b>Bulan :</b> <span id="modalOutletBulan"></span></p>
+
+      <hr>
+
+      <p>Saldo Awal : <span id="modalSaldoAwal">0</span></p>
+      <p>Masuk      : <span id="modalMasuk">0</span></p>
+      <p>Keluar     : <span id="modalKeluar">0</span></p>
+      <p><b>Sisa Stok :</b> <span id="modalSisa">0</span></p>
+
+    </div>
+
+  </div>
+</div>
 </body>
 
 </html>
+
 
 
 
