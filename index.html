@@ -272,6 +272,20 @@ fetch(API_URL)
     stokAwalOutlet = (data.stokAwalOutlet || []).slice(1);
     penjualanOutlet = (data.penjualanOutlet || []).slice(1);
 
+            // =======================
+    // MAP SKU → NAMA PRODUK
+    // =======================
+    const produkMapNama = {};
+    
+    masterProduk.forEach(r => {
+      const sku = String(r[0]);
+      const nama = r[1];
+    
+      if (sku) {
+        produkMapNama[sku] = nama;
+      }
+    });
+
     // MASTER HARGA
     const masterHarga = (data.masterHarga || []).slice(1);
     masterHarga.forEach(r => {
@@ -819,7 +833,7 @@ function showOutletDetail(outlet){
     const tr = document.createElement("tr");
 
     tr.innerHTML = `
-      <td>${sku}</td>
+      <td>${produkMapNama[sku] || sku}</td>
       <td>${data.saldo}</td>
       <td>${data.masuk}</td>
       <td>${data.keluar}</td>
@@ -903,6 +917,7 @@ exportOutletBtn.addEventListener("click", () => {
 </body>
 
 </html>
+
 
 
 
