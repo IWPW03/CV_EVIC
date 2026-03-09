@@ -826,24 +826,35 @@ function showOutletDetail(outlet){
       produkMap[sku].keluar += qty;
     }
   });
-
+    
+    let totalSaldo = 0;
+    let totalMasuk = 0;
+    let totalKeluar = 0;
   Object.entries(produkMap).forEach(([sku,data])=>{
 
-    const sisa = data.saldo + data.masuk - data.keluar;
+  const sisa = data.saldo + data.masuk - data.keluar;
 
-    const tr = document.createElement("tr");
+  totalSaldo += data.saldo;
+  totalMasuk += data.masuk;
+  totalKeluar += data.keluar;
 
-    tr.innerHTML = `
-      <td>${produkMapNama[sku] || sku}</td>
-      <td>${data.saldo}</td>
-      <td>${data.masuk}</td>
-      <td>${data.keluar}</td>
-      <td><b>${sisa}</b></td>
-    `;
+  const tr = document.createElement("tr");
 
-    tbody.appendChild(tr);
+  tr.innerHTML = `
+  <td>${produkMapNama[sku] || sku}</td>
+  <td>${data.saldo}</td>
+  <td>${data.masuk}</td>
+  <td>${data.keluar}</td>
+  <td><b>${sisa}</b></td>
+  `;
 
-  });
+  tbody.appendChild(tr);
+
+});
+    document.getElementById("modalSaldoAwal").textContent = totalSaldo;
+    document.getElementById("modalMasuk").textContent = totalMasuk;
+    document.getElementById("modalKeluar").textContent = totalKeluar;
+    document.getElementById("modalSisa").textContent = totalSaldo + totalMasuk - totalKeluar;
 
   modal.style.display = "flex";
 }
@@ -918,6 +929,7 @@ exportOutletBtn.addEventListener("click", () => {
 </body>
 
 </html>
+
 
 
 
