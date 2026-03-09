@@ -220,6 +220,8 @@ let produkChart = null;
 let outletChart = null;
 let lastProdukBelumTerjual = [];
 let lastOutletStatus = [];
+let stokAwalOutlet = [];
+let penjualanOutlet = [];
 
 /* =======================
    LOADING CONTROL
@@ -248,6 +250,8 @@ fetch(API_URL)
     persediaan   = (data.persediaan || []).slice(1);
     masterProduk = (data.masterProduk || []).slice(1);
     masterOutlet = (data.masterOutlet || []).slice(1);
+    stokAwalOutlet = (data.stokAwalOutlet || []).slice(1);
+    penjualanOutlet = (data.penjualanOutlet || []).slice(1);
 
     // MASTER HARGA
     const masterHarga = (data.masterHarga || []).slice(1);
@@ -665,6 +669,8 @@ div.onclick = () => {
 
       function showOutletDetail(outlet){
 
+  const bulanDipilih = Number(filterBulan.value);
+
   const modal = document.getElementById("outletModal");
 
   document.getElementById("modalOutletNama").textContent = outlet;
@@ -672,12 +678,85 @@ div.onclick = () => {
   const bulanText = filterBulan.options[filterBulan.selectedIndex].text;
   document.getElementById("modalOutletBulan").textContent = bulanText;
 
+  const tbody = document.getElementById("detailProdukBody");
+  tbody.innerHTML = "";
+
+  const produkMap = {};
+
+  // SALDO AWAL
+  stokAwalOutlet.forEach(r=>{
+
+    const outletData = r[0];
+    const sku = r[1];
+    const qty = Number(r[2]) || 0;
+
+    if(outletData === outlet){
+
+      if(!produkMap[sku]) produkMap[sku] = {saldo:0,masuk:0,keluar:0};
+
+      produkMap[sku].saldo += qty;
+
+    }
+
+  });
+
+  // MASUK (dari warehouse / penjualan sheet)
+  penjualanRaw.forEach(r=>{
+
+    const outletData = r[2];
+    const sku = r[5];
+    const qty = Number(r[4]) || 0;
+    const bulanData = new Date(r[0]).getUTCMonth()+1;
+
+    if(outletData === outlet && bulanData === bulanDipilih){
+
+      if(!produkMap[sku]) produkMap[sku] = {saldo:0,masuk:0,keluar:0};
+
+      produkMap[sku].masuk += qty;
+
+    }
+
+  });
+
+  // TERJUAL
+  penjualanOutlet.forEach(r=>{
+
+    const outletData = r[1];
+    const sku = r[2];
+    const qty = Number(r[3]) || 0;
+    const bulanData = new Date(r[0]).getUTCMonth()+1;
+
+    if(outletData === outlet && bulanData === bulanDipilih){
+
+      if(!produkMap[sku]) produkMap[sku] = {saldo:0,masuk:0,keluar:0};
+
+      produkMap[sku].keluar += qty;
+
+    }
+
+  });
+
+  Object.entries(produkMap).forEach(([sku,data])=>{
+
+    const sisa = data.saldo + data.masuk - data.keluar;
+
+    const tr = document.createElement("tr");
+
+    tr.innerHTML = `
+    <td style="border:1px solid #ddd;padding:5px">${sku}</td>
+    <td style="border:1px solid #ddd;padding:5px">${data.saldo}</td>
+    <td style="border:1px solid #ddd;padding:5px">${data.masuk}</td>
+    <td style="border:1px solid #ddd;padding:5px">${data.keluar}</td>
+    <td style="border:1px solid #ddd;padding:5px"><b>${sisa}</b></td>
+    `;
+
+    tbody.appendChild(tr);
+
+  });
+
   modal.style.display = "flex";
 
 }
-      document.getElementById("closeModal").onclick = () => {
-  document.getElementById("outletModal").style.display = "none";
-};
 
     div.innerHTML = `
       <span>${outlet}</span>
@@ -810,6 +889,7 @@ exportOutletBtn.addEventListener("click", () => {
 </body>
 
 </html>
+
 
 
 
