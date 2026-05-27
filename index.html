@@ -288,19 +288,53 @@ function runAnalysis(){
 
 function render(target,lines){
 
-    let html = '';
-
     let format = lines.join('*');
 
-    html += `
-        <div class="line">
-            ${format}
-        </div>
+    let html = `
+    
+    <div style="
+        background:#16a34a;
+        padding:15px;
+        border-radius:12px;
+        word-break:break-word;
+        overflow-wrap:anywhere;
+        font-size:26px;
+        font-weight:bold;
+        text-align:center;
+        line-height:1.6;
+    ">
+        ${format}
+    </div>
+
+    <button
+        onclick="copyText('${format}')"
+        style="
+            margin-top:12px;
+            width:100%;
+            padding:12px;
+            border:none;
+            border-radius:10px;
+            background:#2563eb;
+            color:white;
+            font-size:16px;
+            font-weight:bold;
+            cursor:pointer;
+        "
+    >
+        COPY
+    </button>
+
     `;
 
     document.getElementById(target).innerHTML =
         html;
-        }
+}
+    function copyText(text){
+
+    navigator.clipboard.writeText(text);
+
+    alert('Berhasil di copy');
+}
 function digitFreq(){
 
     let freq = {};
