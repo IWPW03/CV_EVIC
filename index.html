@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>AI OCR ANALYZER 2D & 4D</title>
+<title>AI POLA KENAIKAN PENURUNAN</title>
 
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
@@ -30,6 +30,11 @@ h1{
     margin-bottom:20px;
 }
 
+input{
+    width:100%;
+    margin-bottom:15px;
+}
+
 button{
     width:100%;
     padding:14px;
@@ -46,14 +51,9 @@ button:hover{
     background:#1d4ed8;
 }
 
-input{
-    width:100%;
-    margin-bottom:15px;
-}
-
 textarea{
     width:100%;
-    height:140px;
+    height:130px;
     margin-top:15px;
     background:#0f172a;
     color:white;
@@ -87,8 +87,8 @@ textarea{
     border-radius:12px;
     word-break:break-word;
     overflow-wrap:anywhere;
-    text-align:center;
     line-height:1.8;
+    text-align:center;
     font-size:24px;
     font-weight:bold;
 }
@@ -127,7 +127,7 @@ textarea{
 </head>
 <body>
 
-<h1>AI OCR ANALYZER 2D & 4D</h1>
+<h1>AI POLA KENAIKAN & PENURUNAN</h1>
 
 <div class="card">
 
@@ -152,13 +152,28 @@ SCAN OCR HISTORY
 <div class="grid">
 
 <div class="box">
+<div class="title">POLA KENAIKAN</div>
+<div id="upResult"></div>
+</div>
+
+<div class="box">
+<div class="title">POLA PENURUNAN</div>
+<div id="downResult"></div>
+</div>
+
+<div class="box">
+<div class="title">POLA ZIGZAG</div>
+<div id="zigzagResult"></div>
+</div>
+
+<div class="box">
 <div class="title">FINAL AI FILTER 2D</div>
 <div id="final2dResult"></div>
 </div>
 
 <div class="box">
-<div class="title">TOP 20 AI FILTER 4D</div>
-<div id="top4dResult"></div>
+<div class="title">FINAL AI FILTER 4D</div>
+<div id="final4dResult"></div>
 </div>
 
 </div>
@@ -168,12 +183,9 @@ SCAN OCR HISTORY
 let history2D = [];
 let history4D = [];
 
-let frequencyLines = [];
-let oddEvenLines = [];
-let bigSmallLines = [];
-let hotDigitLines = [];
-let transitionLines = [];
-let plusMinusLines = [];
+let upLines = [];
+let downLines = [];
+let zigzagLines = [];
 
 async function scanOCR(){
 
@@ -250,13 +262,6 @@ function processOCR(text){
 
     });
 
-    if(history2D.length === 0){
-
-        alert('Tidak ada data');
-
-        return;
-    }
-
     showStats();
 
     runAnalysis();
@@ -267,150 +272,30 @@ function showStats(){
     document.getElementById('stats').innerHTML = `
         Total History 2D : ${history2D.length}<br>
         Total History 4D : ${history4D.length}<br>
-        Probabilitas 4D : 1 / 10000<br>
-        Coverage TOP 20 : 0.2%
+        Analisa Fokus : Pola Naik Turun<br>
+        AI Filter : Aktif
     `;
 }
 
 function runAnalysis(){
 
-    generateFrequency();
+    generateUpPattern();
 
-    generateOddEven();
+    generateDownPattern();
 
-    generateBigSmall();
-
-    generateHotDigit();
-
-    generateTransition();
-
-    generatePlusMinus();
+    generateZigzagPattern();
 
     generateFinal2D();
 
-    generateAI4D();
+    generateFinal4D();
 }
 
-function digitFreq(){
+function generateUpPattern(){
 
-    let freq = {};
-
-    for(let i=0;i<=9;i++){
-        freq[i]=0;
-    }
-
-    history2D.forEach(num=>{
-
-        freq[num[0]]++;
-        freq[num[1]]++;
-
-    });
-
-    return freq;
-}
-
-function generateFrequency(){
-
-    frequencyLines = [];
-
-    let freq = digitFreq();
-
-    let sorted =
-        Object.entries(freq)
-        .sort((a,b)=>b[1]-a[1]);
-
-    let d =
-        sorted.slice(0,5).map(x=>x[0]);
-
-    frequencyLines.push(d[0]+d[1]);
-    frequencyLines.push(d[1]+d[2]);
-    frequencyLines.push(d[2]+d[3]);
-    frequencyLines.push(d[3]+d[4]);
-}
-
-function generateOddEven(){
-
-    oddEvenLines = [];
-
-    let odd=['1','3','5','7','9'];
-    let even=['0','2','4','6','8'];
-
-    while(oddEvenLines.length < 4){
-
-        let a =
-            odd[
-                Math.floor(Math.random()*odd.length)
-            ];
-
-        let b =
-            even[
-                Math.floor(Math.random()*even.length)
-            ];
-
-        let num = a+b;
-
-        if(!oddEvenLines.includes(num)){
-
-            oddEvenLines.push(num);
-
-        }
-    }
-}
-
-function generateBigSmall(){
-
-    bigSmallLines = [];
-
-    let small=['0','1','2','3','4'];
-    let big=['5','6','7','8','9'];
-
-    while(bigSmallLines.length < 4){
-
-        let a =
-            small[
-                Math.floor(Math.random()*small.length)
-            ];
-
-        let b =
-            big[
-                Math.floor(Math.random()*big.length)
-            ];
-
-        let num = a+b;
-
-        if(!bigSmallLines.includes(num)){
-
-            bigSmallLines.push(num);
-
-        }
-    }
-}
-
-function generateHotDigit(){
-
-    hotDigitLines = [];
-
-    let freq = digitFreq();
-
-    let sorted =
-        Object.entries(freq)
-        .sort((a,b)=>b[1]-a[1]);
-
-    let hot =
-        sorted.slice(0,2).map(x=>x[0]);
-
-    hotDigitLines.push(hot[0]+hot[0]);
-    hotDigitLines.push(hot[0]+hot[1]);
-    hotDigitLines.push(hot[1]+hot[0]);
-    hotDigitLines.push(hot[1]+hot[1]);
-}
-
-function generateTransition(){
-
-    transitionLines = [];
+    upLines = [];
 
     history2D
-        .slice(-4)
+        .slice(-10)
         .forEach(num=>{
 
         let a = parseInt(num[0]);
@@ -419,176 +304,217 @@ function generateTransition(){
         a = (a+1)%10;
         b = (b+1)%10;
 
-        transitionLines.push(`${a}${b}`);
+        upLines.push(
+            `${a}${b}`
+        );
 
     });
+
+    upLines =
+        [...new Set(upLines)]
+        .slice(0,10);
+
+    render(
+        'upResult',
+        upLines
+    );
 }
 
-function generatePlusMinus(){
+function generateDownPattern(){
 
-    plusMinusLines = [];
+    downLines = [];
 
     history2D
-        .slice(-2)
+        .slice(-10)
         .forEach(num=>{
 
         let a = parseInt(num[0]);
         let b = parseInt(num[1]);
 
-        let plus =
-            ((a+1)%10).toString() +
-            ((b+1)%10).toString();
+        a = (a+9)%10;
+        b = (b+9)%10;
 
-        let minus =
-            ((a+9)%10).toString() +
-            ((b+9)%10).toString();
-
-        plusMinusLines.push(plus);
-
-        plusMinusLines.push(minus);
+        downLines.push(
+            `${a}${b}`
+        );
 
     });
+
+    downLines =
+        [...new Set(downLines)]
+        .slice(0,10);
+
+    render(
+        'downResult',
+        downLines
+    );
+}
+
+function generateZigzagPattern(){
+
+    zigzagLines = [];
+
+    history2D
+        .slice(-10)
+        .forEach(num=>{
+
+        let a = parseInt(num[0]);
+        let b = parseInt(num[1]);
+
+        let up =
+            ((a+1)%10).toString() +
+            ((b+9)%10).toString();
+
+        let down =
+            ((a+9)%10).toString() +
+            ((b+1)%10).toString();
+
+        zigzagLines.push(up);
+        zigzagLines.push(down);
+
+    });
+
+    zigzagLines =
+        [...new Set(zigzagLines)]
+        .slice(0,10);
+
+    render(
+        'zigzagResult',
+        zigzagLines
+    );
 }
 
 function generateFinal2D(){
 
-    let allLines = [];
+    let all = [];
 
-    allLines.push(...frequencyLines);
-    allLines.push(...oddEvenLines);
-    allLines.push(...bigSmallLines);
-    allLines.push(...hotDigitLines);
-    allLines.push(...transitionLines);
-    allLines.push(...plusMinusLines);
+    all.push(...upLines);
+    all.push(...downLines);
+    all.push(...zigzagLines);
 
     let unique =
-        [...new Set(allLines)];
+        [...new Set(all)];
 
-    unique = unique
-        .sort(()=>Math.random()-0.5);
+    let scored = [];
 
-    unique = unique.slice(0,20);
+    unique.forEach(num=>{
+
+        let score = 0;
+
+        let a = parseInt(num[0]);
+        let b = parseInt(num[1]);
+
+        if(a < b){
+            score += 10;
+        }
+
+        if(Math.abs(a-b)<=3){
+            score += 5;
+        }
+
+        if(a%2 !== b%2){
+            score += 5;
+        }
+
+        score += Math.random()*3;
+
+        scored.push({
+            num,
+            score
+        });
+
+    });
+
+    scored.sort((a,b)=>b.score-a.score);
+
+    let final =
+        scored
+        .slice(0,20)
+        .map(x=>x.num);
 
     render(
         'final2dResult',
-        unique
+        final
     );
 }
 
-function generateAI4D(){
+function generateFinal4D(){
 
     if(history4D.length === 0){
 
-        document.getElementById('top4dResult')
+        document.getElementById('final4dResult')
         .innerHTML =
             '<div class=\"result\">Tidak ada data 4D</div>';
 
         return;
     }
 
-    let freq = {};
+    let candidates = [];
 
-    for(let i=0;i<=9;i++){
-        freq[i]=0;
-    }
+    history4D
+        .slice(-20)
+        .forEach(num=>{
 
-    history4D.forEach(num=>{
+        let d = num.split('');
 
-        num.split('').forEach(d=>{
+        let p1 =
+            ((parseInt(d[0])+1)%10).toString();
 
-            freq[d]++;
+        let p2 =
+            ((parseInt(d[1])+1)%10).toString();
 
-        });
+        let p3 =
+            ((parseInt(d[2])+9)%10).toString();
 
-    });
+        let p4 =
+            ((parseInt(d[3])+9)%10).toString();
 
-    let hotDigits =
-        Object.entries(freq)
-        .sort((a,b)=>b[1]-a[1])
-        .slice(0,6)
-        .map(x=>x[0]);
-
-    let candidates=[];
-
-    for(let i=0;i<4000;i++){
-
-        let num='';
-
-        for(let j=0;j<4;j++){
-
-            num +=
-                hotDigits[
-                    Math.floor(
-                        Math.random()*hotDigits.length
-                    )
-                ];
-
-        }
+        let next =
+            p1+p2+p3+p4;
 
         let score = 0;
 
         let unique =
-            new Set(num.split('')).size;
+            new Set(next.split('')).size;
 
         score += unique * 10;
 
-        num.split('').forEach(d=>{
+        let upCount = 0;
+        let downCount = 0;
 
-            score += freq[d];
+        for(let i=1;i<next.length;i++){
 
-        });
+            let prev =
+                parseInt(next[i-1]);
 
-        let odd = 0;
-        let even = 0;
+            let curr =
+                parseInt(next[i]);
 
-        num.split('').forEach(d=>{
-
-            if(parseInt(d)%2===0){
-                even++;
-            }else{
-                odd++;
+            if(curr > prev){
+                upCount++;
             }
 
-        });
-
-        if(odd >= 1 && even >= 1){
-            score += 20;
-        }
-
-        let small = 0;
-        let big = 0;
-
-        num.split('').forEach(d=>{
-
-            if(parseInt(d)<=4){
-                small++;
-            }else{
-                big++;
+            if(curr < prev){
+                downCount++;
             }
 
+        }
+
+        score += upCount * 5;
+        score += downCount * 5;
+
+        score += Math.random()*5;
+
+        candidates.push({
+            num:next,
+            score
         });
 
-        if(small >= 1 && big >= 1){
-            score += 20;
-        }
-
-        if(
-            !history4D.includes(num)
-        ){
-
-            candidates.push({
-                num,
-                score
-            });
-
-        }
-
-    }
+    });
 
     candidates.sort((a,b)=>b.score-a.score);
 
-    let final=[];
-
+    let final = [];
     let used = new Set();
 
     candidates.forEach(c=>{
@@ -607,7 +533,7 @@ function generateAI4D(){
     });
 
     render(
-        'top4dResult',
+        'final4dResult',
         final
     );
 }
