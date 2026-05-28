@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>AI POLA KENAIKAN PENURUNAN</title>
+<title>AI ANALISIS POLA 4D</title>
 
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
@@ -53,7 +53,7 @@ button:hover{
 
 textarea{
     width:100%;
-    height:130px;
+    height:140px;
     margin-top:15px;
     background:#0f172a;
     color:white;
@@ -127,7 +127,7 @@ textarea{
 </head>
 <body>
 
-<h1>AI POLA KENAIKAN & PENURUNAN</h1>
+<h1>AI ANALISIS POLA 4D</h1>
 
 <div class="card">
 
@@ -152,36 +152,64 @@ SCAN OCR HISTORY
 <div class="grid">
 
 <div class="box">
-<div class="title">POLA KENAIKAN</div>
-<div id="upResult"></div>
-</div>
 
-<div class="box">
-<div class="title">POLA PENURUNAN</div>
-<div id="downResult"></div>
-</div>
-
-<div class="box">
-<div class="title">POLA ZIGZAG</div>
-<div id="zigzagResult"></div>
-</div>
-
-<div class="box">
-<div class="title">FINAL AI FILTER 2D</div>
-<div id="final2dResult"></div>
-</div>
-
-<div class="box">
-<div class="title">FINAL AI FILTER 4D</div>
-<div id="final4dResult"></div>
-</div>
-<div class="box">
 <div class="title">
 ANALISIS AS KOP KEPALA EKOR
 </div>
-<div id="positionTrendResult"></div>
+
+<div
+    id="movementStats"
+    class="result"
+></div>
+
+<button
+    class="copyBtn"
+    onclick="copyMovement()"
+>
+COPY ANALISIS
+</button>
+
 </div>
-    
+
+<div class="box">
+
+<div class="title">
+PREDIKSI GERAK 4D
+</div>
+
+<div
+    id="movementPrediction"
+    class="result"
+></div>
+
+</div>
+
+<div class="box">
+
+<div class="title">
+FINAL AI FILTER 2D
+</div>
+
+<div
+    id="final2dResult"
+    class="result"
+></div>
+
+</div>
+
+<div class="box">
+
+<div class="title">
+FINAL AI FILTER 4D
+</div>
+
+<div
+    id="final4dResult"
+    class="result"
+></div>
+
+</div>
+
 </div>
 
 <script>
@@ -189,9 +217,7 @@ ANALISIS AS KOP KEPALA EKOR
 let history2D = [];
 let history4D = [];
 
-let upLines = [];
-let downLines = [];
-let zigzagLines = [];
+let movementText = '';
 
 async function scanOCR(){
 
@@ -199,7 +225,9 @@ async function scanOCR(){
         document.getElementById('imageInput').files[0];
 
     if(!file){
+
         alert('Pilih gambar dulu');
+
         return;
     }
 
@@ -237,7 +265,9 @@ function processOCR(text){
     const numbers = text.match(/\d+/g);
 
     if(!numbers){
+
         alert('Tidak ada angka');
+
         return;
     }
 
@@ -255,7 +285,6 @@ function processOCR(text){
             history2D.push(
                 num.slice(-2)
             );
-
         }
 
         else if(num.length >= 2){
@@ -263,7 +292,6 @@ function processOCR(text){
             history2D.push(
                 num.slice(-2)
             );
-
         }
 
     });
@@ -276,171 +304,366 @@ function processOCR(text){
 function showStats(){
 
     document.getElementById('stats').innerHTML = `
-        Total History 2D : ${history2D.length}<br>
-        Total History 4D : ${history4D.length}<br>
-        Analisa Fokus : Pola Naik Turun<br>
-        AI Filter : Aktif
+    
+    Total History 2D :
+    ${history2D.length}
+    
+    <br>
+
+    Total History 4D :
+    ${history4D.length}
+
+    <br>
+
+    Sistem :
+    Analisis Kenaikan Penurunan
+    
+    <br>
+
+    Probabilitas 4D :
+    1 / 10000
+    
     `;
 }
 
 function runAnalysis(){
 
-    generateUpPattern();
-
-    generateDownPattern();
-
-    generateZigzagPattern();
+    analyzePositionMovement();
 
     generateFinal2D();
 
-    generatePositionTrend();
-
     generateFinal4D();
-
 }
 
-function generateUpPattern(){
+function normalizeMove(diff,obj){
 
-    upLines = [];
+    if(diff > 5){
+        diff -= 10;
+    }
 
-    history2D
-        .slice(-10)
+    if(diff < -5){
+        diff += 10;
+    }
+
+    if(obj[diff] !== undefined){
+
+        obj[diff]++;
+
+    }
+}
+
+function getTopMove(obj){
+
+    return parseInt(
+
+        Object.entries(obj)
+        .sort((a,b)=>b[1]-a[1])[0][0]
+
+    );
+}
+
+function formatMove(num){
+
+    if(num > 0){
+
+        return `+${num}`;
+    }
+
+    return `${num}`;
+}
+
+function analyzePositionMovement(){
+
+    let asMove = {};
+    let kopMove = {};
+    let kepalaMove = {};
+    let ekorMove = {};
+
+    for(let i=-9;i<=9;i++){
+
+        if(i !== 0){
+
+            asMove[i]=0;
+            kopMove[i]=0;
+            kepalaMove[i]=0;
+            ekorMove[i]=0;
+
+        }
+
+    }
+
+    for(let i=1;i<history4D.length;i++){
+
+        let prev = history4D[i-1];
+        let curr = history4D[i];
+
+        let asDiff =
+            parseInt(curr[0]) -
+            parseInt(prev[0]);
+
+        normalizeMove(
+            asDiff,
+            asMove
+        );
+
+        let kopDiff =
+            parseInt(curr[1]) -
+            parseInt(prev[1]);
+
+        normalizeMove(
+            kopDiff,
+            kopMove
+        );
+
+        let kepalaDiff =
+            parseInt(curr[2]) -
+            parseInt(prev[2]);
+
+        normalizeMove(
+            kepalaDiff,
+            kepalaMove
+        );
+
+        let ekorDiff =
+            parseInt(curr[3]) -
+            parseInt(prev[3]);
+
+        normalizeMove(
+            ekorDiff,
+            ekorMove
+        );
+    }
+
+    let asTrend =
+        getTopMove(asMove);
+
+    let kopTrend =
+        getTopMove(kopMove);
+
+    let kepalaTrend =
+        getTopMove(kepalaMove);
+
+    let ekorTrend =
+        getTopMove(ekorMove);
+
+    movementText = `
+AS ${formatMove(asTrend)}
+KOP ${formatMove(kopTrend)}
+KEPALA ${formatMove(kepalaTrend)}
+EKOR ${formatMove(ekorTrend)}
+`;
+
+    document.getElementById(
+        'movementStats'
+    ).innerHTML = `
+
+    AS :
+    ${formatMove(asTrend)}
+
+    <br><br>
+
+    KOP :
+    ${formatMove(kopTrend)}
+
+    <br><br>
+
+    KEPALA :
+    ${formatMove(kepalaTrend)}
+
+    <br><br>
+
+    EKOR :
+    ${formatMove(ekorTrend)}
+
+    `;
+
+    generateMovementPrediction(
+        asTrend,
+        kopTrend,
+        kepalaTrend,
+        ekorTrend
+    );
+}
+
+function generateMovementPrediction(
+    asTrend,
+    kopTrend,
+    kepalaTrend,
+    ekorTrend
+){
+
+    let final = [];
+
+    history4D
+        .slice(-20)
         .forEach(num=>{
 
-        let a = parseInt(num[0]);
-        let b = parseInt(num[1]);
+        let a =
+            (
+                parseInt(num[0]) +
+                asTrend + 10
+            ) % 10;
 
-        a = (a+1)%10;
-        b = (b+1)%10;
+        let b =
+            (
+                parseInt(num[1]) +
+                kopTrend + 10
+            ) % 10;
 
-        upLines.push(
-            `${a}${b}`
+        let c =
+            (
+                parseInt(num[2]) +
+                kepalaTrend + 10
+            ) % 10;
+
+        let d =
+            (
+                parseInt(num[3]) +
+                ekorTrend + 10
+            ) % 10;
+
+        final.push(
+            `${a}${b}${c}${d}`
         );
 
     });
 
-    upLines =
-        [...new Set(upLines)]
-        .slice(0,10);
+    final =
+        [...new Set(final)]
+        .slice(0,20);
 
     render(
-        'upResult',
-        upLines
+        'movementPrediction',
+        final
     );
 }
 
-function generateDownPattern(){
+function generateFinal2D(){
 
-    downLines = [];
-
-    history2D
-        .slice(-10)
-        .forEach(num=>{
-
-        let a = parseInt(num[0]);
-        let b = parseInt(num[1]);
-
-        a = (a+9)%10;
-        b = (b+9)%10;
-
-        downLines.push(
-            `${a}${b}`
-        );
-
-    });
-
-    downLines =
-        [...new Set(downLines)]
-        .slice(0,10);
-
-    render(
-        'downResult',
-        downLines
-    );
-}
-
-function generateZigzagPattern(){
-
-    zigzagLines = [];
+    let lines = [];
 
     history2D
-        .slice(-10)
+        .slice(-20)
         .forEach(num=>{
 
         let a = parseInt(num[0]);
         let b = parseInt(num[1]);
 
         let up =
-            ((a+1)%10).toString() +
-            ((b+9)%10).toString();
+            (
+                (a+1)%10
+            ).toString()
+            +
+            (
+                (b+1)%10
+            ).toString();
 
         let down =
-            ((a+9)%10).toString() +
-            ((b+1)%10).toString();
+            (
+                (a+9)%10
+            ).toString()
+            +
+            (
+                (b+9)%10
+            ).toString();
 
-        zigzagLines.push(up);
-        zigzagLines.push(down);
+        lines.push(up);
+        lines.push(down);
 
     });
 
-    zigzagLines =
-        [...new Set(zigzagLines)]
-        .slice(0,10);
+    lines =
+        [...new Set(lines)]
+        .slice(0,20);
 
     render(
-        'zigzagResult',
-        zigzagLines
+        'final2dResult',
+        lines
     );
 }
 
-function generateFinal2D(){
+function generateFinal4D(){
 
-    let all = [];
+    let lines = [];
 
-    all.push(...upLines);
-    all.push(...downLines);
-    all.push(...zigzagLines);
+    history4D
+        .slice(-20)
+        .forEach(num=>{
 
-    let unique =
-        [...new Set(all)];
+        let newNum = '';
 
-    let scored = [];
+        for(let i=0;i<4;i++){
 
-    unique.forEach(num=>{
+            let d =
+                (
+                    parseInt(num[i])+1
+                ) % 10;
 
-        let score = 0;
+            newNum += d;
 
-        let a = parseInt(num[0]);
-        let b = parseInt(num[1]);
-
-        if(a < b){
-            score += 10;
         }
 
-        if(Math.abs(a-b)<=3){
-            score += 5;
-        }
-
-        if(a%2 !== b%2){
-            score += 5;
-        }
-
-        score += Math.random()*3;
-
-        scored.push({
-            num,
-            score
-        });
+        lines.push(newNum);
 
     });
 
-    scored.sort((a,b)=>b.score-a.score);
+    lines =
+        [...new Set(lines)]
+        .slice(0,20);
 
-    let final =
-        scored
-        .slice(0,20)
-        .map(x=>x.num);
+    render(
+        'final4dResult',
+        lines
+    );
+}
 
+function render(target,lines){
+
+    let unique =
+        [...new Set(lines)];
+
+    let format =
+        unique.join('*');
+
+    let html = `
+    
+    <div class="result">
+        ${format}
+    </div>
+
+    <button
+        class="copyBtn"
+        onclick="copyText('${format}')"
+    >
+        COPY
+    </button>
+
+    `;
+
+    document.getElementById(target).innerHTML =
+        html;
+}
+
+function copyText(text){
+
+    navigator.clipboard.writeText(text);
+
+    alert('Berhasil di copy');
+}
+
+function copyMovement(){
+
+    navigator.clipboard.writeText(
+        movementText
+    );
+
+    alert('Analisis berhasil di copy');
+}
+
+</script>
+
+</body>
+</html>
     render(
         'final2dResult',
         final
