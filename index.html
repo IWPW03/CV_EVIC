@@ -175,7 +175,13 @@ SCAN OCR HISTORY
 <div class="title">FINAL AI FILTER 4D</div>
 <div id="final4dResult"></div>
 </div>
-
+<div class="box">
+<div class="title">
+ANALISIS AS KOP KEPALA EKOR
+</div>
+<div id="positionTrendResult"></div>
+</div>
+    
 </div>
 
 <script>
@@ -287,7 +293,10 @@ function runAnalysis(){
 
     generateFinal2D();
 
+    generatePositionTrend();
+
     generateFinal4D();
+
 }
 
 function generateUpPattern(){
@@ -571,7 +580,184 @@ function copyText(text){
 
     alert('Berhasil di copy');
 }
+    
+// =====================================
+// ANALISIS AS KOP KEPALA EKOR
+// =====================================
 
+function generatePositionTrend(){
+
+    let asFreq = {};
+    let kopFreq = {};
+    let kepalaFreq = {};
+    let ekorFreq = {};
+
+    for(let i=0;i<=9;i++){
+
+        asFreq[i]=0;
+        kopFreq[i]=0;
+        kepalaFreq[i]=0;
+        ekorFreq[i]=0;
+
+    }
+
+    // =========================
+    // HITUNG HISTORY 4D
+    // =========================
+
+    history4D.forEach(num=>{
+
+        if(num.length === 4){
+
+            asFreq[num[0]]++;
+            kopFreq[num[1]]++;
+            kepalaFreq[num[2]]++;
+            ekorFreq[num[3]]++;
+
+        }
+
+    });
+
+    // =========================
+    // SORTING DIGIT TERAKTIF
+    // =========================
+
+    let asTop =
+        Object.entries(asFreq)
+        .sort((a,b)=>b[1]-a[1])
+        .slice(0,4)
+        .map(x=>x[0]);
+
+    let kopTop =
+        Object.entries(kopFreq)
+        .sort((a,b)=>b[1]-a[1])
+        .slice(0,4)
+        .map(x=>x[0]);
+
+    let kepalaTop =
+        Object.entries(kepalaFreq)
+        .sort((a,b)=>b[1]-a[1])
+        .slice(0,4)
+        .map(x=>x[0]);
+
+    let ekorTop =
+        Object.entries(ekorFreq)
+        .sort((a,b)=>b[1]-a[1])
+        .slice(0,4)
+        .map(x=>x[0]);
+
+    // =========================
+    // ANALISIS KENAIKAN
+    // =========================
+
+    asTop = asTop.map(x=>
+        ((parseInt(x)+1)%10).toString()
+    );
+
+    kopTop = kopTop.map(x=>
+        ((parseInt(x)+1)%10).toString()
+    );
+
+    kepalaTop = kepalaTop.map(x=>
+        ((parseInt(x)+1)%10).toString()
+    );
+
+    ekorTop = ekorTop.map(x=>
+        ((parseInt(x)+1)%10).toString()
+    );
+
+    // =========================
+    // GABUNGKAN MENJADI 4D
+    // =========================
+
+    let results = [];
+
+    for(let a of asTop){
+
+        for(let b of kopTop){
+
+            for(let c of kepalaTop){
+
+                for(let d of ekorTop){
+
+                    let num =
+                        `${a}${b}${c}${d}`;
+
+                    results.push(num);
+
+                }
+
+            }
+
+        }
+
+    }
+
+    // =========================
+    // FILTER DUPLICATE
+    // =========================
+
+    results =
+        [...new Set(results)];
+
+    // =========================
+    // RANDOM FILTER AI
+    // =========================
+
+    let scored = [];
+
+    results.forEach(num=>{
+
+        let score = 0;
+
+        let unique =
+            new Set(num.split('')).size;
+
+        score += unique * 10;
+
+        let up = 0;
+
+        for(let i=1;i<num.length;i++){
+
+            let prev =
+                parseInt(num[i-1]);
+
+            let curr =
+                parseInt(num[i]);
+
+            if(curr > prev){
+                up++;
+            }
+
+        }
+
+        score += up * 5;
+
+        score += Math.random()*5;
+
+        scored.push({
+            num,
+            score
+        });
+
+    });
+
+    scored.sort((a,b)=>b.score-a.score);
+
+    let final =
+        scored
+        .slice(0,20)
+        .map(x=>x.num);
+
+    // =========================
+    // RENDER
+    // =========================
+
+    render(
+        'positionTrendResult',
+        final
+    );
+}
 </script>
 
 </body>
