@@ -76,19 +76,38 @@ textarea{
 
 .title{
     text-align:center;
-    font-size:18px;
+    font-size:20px;
     font-weight:bold;
     margin-bottom:15px;
 }
 
-.line{
+.result{
     background:#16a34a;
-    padding:12px;
-    border-radius:10px;
-    margin-bottom:10px;
+    padding:15px;
+    border-radius:12px;
+    word-break:break-word;
+    overflow-wrap:anywhere;
     text-align:center;
-    font-size:20px;
+    line-height:1.8;
+    font-size:24px;
     font-weight:bold;
+}
+
+.copyBtn{
+    margin-top:12px;
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:10px;
+    background:#2563eb;
+    color:white;
+    font-size:16px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+.copyBtn:hover{
+    background:#1d4ed8;
 }
 
 .loading{
@@ -99,10 +118,9 @@ textarea{
 
 .stats{
     background:#0f172a;
-    padding:10px;
+    padding:12px;
     border-radius:10px;
-    margin-bottom:10px;
-    font-size:14px;
+    line-height:1.8;
 }
 
 </style>
@@ -134,33 +152,8 @@ SCAN OCR HISTORY
 <div class="grid">
 
 <div class="box">
-<div class="title">TOP 4 FREQUENCY</div>
-<div id="frequencyResult"></div>
-</div>
-
-<div class="box">
-<div class="title">TOP 4 ODD EVEN</div>
-<div id="oddEvenResult"></div>
-</div>
-
-<div class="box">
-<div class="title">TOP 4 BIG SMALL</div>
-<div id="bigSmallResult"></div>
-</div>
-
-<div class="box">
-<div class="title">TOP 4 HOT DIGIT</div>
-<div id="hotDigitResult"></div>
-</div>
-
-<div class="box">
-<div class="title">TOP 4 TRANSITION</div>
-<div id="transitionResult"></div>
-</div>
-
-<div class="box">
-<div class="title">TOP 4 PLUS MINUS</div>
-<div id="plusMinusResult"></div>
+<div class="title">FINAL AI FILTER 2D</div>
+<div id="final2dResult"></div>
 </div>
 
 <div class="box">
@@ -175,13 +168,20 @@ SCAN OCR HISTORY
 let history2D = [];
 let history4D = [];
 
+let frequencyLines = [];
+let oddEvenLines = [];
+let bigSmallLines = [];
+let hotDigitLines = [];
+let transitionLines = [];
+let plusMinusLines = [];
+
 async function scanOCR(){
 
     const file =
         document.getElementById('imageInput').files[0];
 
     if(!file){
-        alert('Pilih gambar');
+        alert('Pilih gambar dulu');
         return;
     }
 
@@ -196,7 +196,7 @@ async function scanOCR(){
         }
     );
 
-    const text = result.data.text;
+    let text = result.data.text;
 
     document.getElementById('ocrText').value =
         text;
@@ -239,6 +239,7 @@ function processOCR(text){
             );
 
         }
+
         else if(num.length >= 2){
 
             history2D.push(
@@ -250,7 +251,9 @@ function processOCR(text){
     });
 
     if(history2D.length === 0){
+
         alert('Tidak ada data');
+
         return;
     }
 
@@ -264,8 +267,8 @@ function showStats(){
     document.getElementById('stats').innerHTML = `
         Total History 2D : ${history2D.length}<br>
         Total History 4D : ${history4D.length}<br>
-        Coverage TOP 20 4D : 0.2%<br>
-        Probabilitas 1 Line 4D : 1 / 10000
+        Probabilitas 4D : 1 / 10000<br>
+        Coverage TOP 20 : 0.2%
     `;
 }
 
@@ -283,68 +286,17 @@ function runAnalysis(){
 
     generatePlusMinus();
 
+    generateFinal2D();
+
     generateAI4D();
 }
 
-function render(target,lines){
-
-    // hapus duplicate
-    let unique = [...new Set(lines)];
-
-    // gabungkan format
-    let format = unique.join('*');
-
-    let html = `
-    
-    <div style="
-        background:#16a34a;
-        padding:15px;
-        border-radius:12px;
-        word-break:break-word;
-        overflow-wrap:anywhere;
-        font-size:26px;
-        font-weight:bold;
-        text-align:center;
-        line-height:1.6;
-    ">
-        ${format}
-    </div>
-
-    <button
-        onclick="copyText('${format}')"
-        style="
-            margin-top:12px;
-            width:100%;
-            padding:12px;
-            border:none;
-            border-radius:10px;
-            background:#2563eb;
-            color:white;
-            font-size:16px;
-            font-weight:bold;
-            cursor:pointer;
-        "
-    >
-        COPY
-    </button>
-
-    `;
-
-    document.getElementById(target).innerHTML =
-        html;
-}
-    function copyText(text){
-
-    navigator.clipboard.writeText(text);
-
-    alert('Berhasil di copy');
-}
 function digitFreq(){
 
     let freq = {};
 
     for(let i=0;i<=9;i++){
-        freq[i] = 0;
+        freq[i]=0;
     }
 
     history2D.forEach(num=>{
@@ -359,6 +311,8 @@ function digitFreq(){
 
 function generateFrequency(){
 
+    frequencyLines = [];
+
     let freq = digitFreq();
 
     let sorted =
@@ -368,27 +322,20 @@ function generateFrequency(){
     let d =
         sorted.slice(0,5).map(x=>x[0]);
 
-    let lines = [];
-
-    lines.push(d[0]+d[1]);
-    lines.push(d[1]+d[2]);
-    lines.push(d[2]+d[3]);
-    lines.push(d[3]+d[4]);
-
-    render(
-        'frequencyResult',
-        lines
-    );
+    frequencyLines.push(d[0]+d[1]);
+    frequencyLines.push(d[1]+d[2]);
+    frequencyLines.push(d[2]+d[3]);
+    frequencyLines.push(d[3]+d[4]);
 }
 
 function generateOddEven(){
 
+    oddEvenLines = [];
+
     let odd=['1','3','5','7','9'];
     let even=['0','2','4','6','8'];
 
-    let lines=[];
-
-    while(lines.length < 4){
+    while(oddEvenLines.length < 4){
 
         let a =
             odd[
@@ -402,25 +349,22 @@ function generateOddEven(){
 
         let num = a+b;
 
-        if(!lines.includes(num)){
-            lines.push(num);
+        if(!oddEvenLines.includes(num)){
+
+            oddEvenLines.push(num);
+
         }
     }
-
-    render(
-        'oddEvenResult',
-        lines
-    );
 }
 
 function generateBigSmall(){
 
+    bigSmallLines = [];
+
     let small=['0','1','2','3','4'];
     let big=['5','6','7','8','9'];
 
-    let lines=[];
-
-    while(lines.length < 4){
+    while(bigSmallLines.length < 4){
 
         let a =
             small[
@@ -434,18 +378,17 @@ function generateBigSmall(){
 
         let num = a+b;
 
-        if(!lines.includes(num)){
-            lines.push(num);
+        if(!bigSmallLines.includes(num)){
+
+            bigSmallLines.push(num);
+
         }
     }
-
-    render(
-        'bigSmallResult',
-        lines
-    );
 }
 
 function generateHotDigit(){
+
+    hotDigitLines = [];
 
     let freq = digitFreq();
 
@@ -456,22 +399,15 @@ function generateHotDigit(){
     let hot =
         sorted.slice(0,2).map(x=>x[0]);
 
-    let lines=[];
-
-    lines.push(hot[0]+hot[0]);
-    lines.push(hot[0]+hot[1]);
-    lines.push(hot[1]+hot[0]);
-    lines.push(hot[1]+hot[1]);
-
-    render(
-        'hotDigitResult',
-        lines
-    );
+    hotDigitLines.push(hot[0]+hot[0]);
+    hotDigitLines.push(hot[0]+hot[1]);
+    hotDigitLines.push(hot[1]+hot[0]);
+    hotDigitLines.push(hot[1]+hot[1]);
 }
 
 function generateTransition(){
 
-    let lines=[];
+    transitionLines = [];
 
     history2D
         .slice(-4)
@@ -483,19 +419,14 @@ function generateTransition(){
         a = (a+1)%10;
         b = (b+1)%10;
 
-        lines.push(`${a}${b}`);
+        transitionLines.push(`${a}${b}`);
 
     });
-
-    render(
-        'transitionResult',
-        lines
-    );
 }
 
 function generatePlusMinus(){
 
-    let lines=[];
+    plusMinusLines = [];
 
     history2D
         .slice(-2)
@@ -512,14 +443,35 @@ function generatePlusMinus(){
             ((a+9)%10).toString() +
             ((b+9)%10).toString();
 
-        lines.push(plus);
-        lines.push(minus);
+        plusMinusLines.push(plus);
+
+        plusMinusLines.push(minus);
 
     });
+}
+
+function generateFinal2D(){
+
+    let allLines = [];
+
+    allLines.push(...frequencyLines);
+    allLines.push(...oddEvenLines);
+    allLines.push(...bigSmallLines);
+    allLines.push(...hotDigitLines);
+    allLines.push(...transitionLines);
+    allLines.push(...plusMinusLines);
+
+    let unique =
+        [...new Set(allLines)];
+
+    unique = unique
+        .sort(()=>Math.random()-0.5);
+
+    unique = unique.slice(0,20);
 
     render(
-        'plusMinusResult',
-        lines
+        'final2dResult',
+        unique
     );
 }
 
@@ -529,7 +481,7 @@ function generateAI4D(){
 
         document.getElementById('top4dResult')
         .innerHTML =
-            '<div class=\"line\">Tidak ada data 4D</div>';
+            '<div class=\"result\">Tidak ada data 4D</div>';
 
         return;
     }
@@ -558,7 +510,7 @@ function generateAI4D(){
 
     let candidates=[];
 
-    for(let i=0;i<3000;i++){
+    for(let i=0;i<4000;i++){
 
         let num='';
 
@@ -620,26 +572,6 @@ function generateAI4D(){
             score += 20;
         }
 
-        let transitionBonus = 0;
-
-        history4D.slice(-10).forEach(old=>{
-
-            let same = 0;
-
-            for(let k=0;k<4;k++){
-
-                if(num[k] === old[k]){
-                    same++;
-                }
-
-            }
-
-            transitionBonus += same * 3;
-
-        });
-
-        score += transitionBonus;
-
         if(
             !history4D.includes(num)
         ){
@@ -678,6 +610,40 @@ function generateAI4D(){
         'top4dResult',
         final
     );
+}
+
+function render(target,lines){
+
+    let unique =
+        [...new Set(lines)];
+
+    let format =
+        unique.join('*');
+
+    let html = `
+    
+    <div class="result">
+        ${format}
+    </div>
+
+    <button
+        class="copyBtn"
+        onclick="copyText('${format}')"
+    >
+        COPY
+    </button>
+
+    `;
+
+    document.getElementById(target).innerHTML =
+        html;
+}
+
+function copyText(text){
+
+    navigator.clipboard.writeText(text);
+
+    alert('Berhasil di copy');
 }
 
 </script>
