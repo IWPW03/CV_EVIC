@@ -288,7 +288,11 @@ function runAnalysis(){
 
 function render(target,lines){
 
-    let format = lines.join('*');
+    // hapus duplicate
+    let unique = [...new Set(lines)];
+
+    // gabungkan format
+    let format = unique.join('*');
 
     let html = `
     
