@@ -54,24 +54,75 @@ button{padding:10px 14px;border:none;border-radius:8px;cursor:pointer}
     </div>
 
 </div>
- @keyframes spin {
 
-    0%{
-        transform:rotate(0deg);
-    }
-
-    100%{
-        transform:rotate(360deg);
-    }
-
-}
 <div class="grid">
-<div class="card"><h3>Hot Digit</h3><div id="hot" class="result"></div></div>
-<div class="card"><h3>Cool Digit</h3><div id="cool" class="result"></div></div>
-<div class="card"><h3>AS Custom Rank</h3><div id="as" class="result"></div></div>
-<div class="card"><h3>KOP Custom Rank</h3><div id="kop" class="result"></div></div>
-<div class="card"><h3>KEPALA Custom Rank</h3><div id="kepala" class="result"></div></div>
-<div class="card"><h3>EKOR Custom Rank</h3><div id="ekor" class="result"></div></div>
+
+<div class="card">
+    <h3>Hot Digit</h3>
+    <div id="hot" class="result"></div>
+
+    <button
+        class="copyBtn"
+        onclick="copyElement('hot')">
+        COPY HOT
+    </button>
+</div>
+
+<div class="card">
+    <h3>Cool Digit</h3>
+    <div id="cool" class="result"></div>
+
+    <button
+        class="copyBtn"
+        onclick="copyElement('cool')">
+        COPY COOL
+    </button>
+</div>
+
+<div class="card">
+    <h3>AS Custom Rank</h3>
+    <div id="as" class="result"></div>
+
+    <button
+        class="copyBtn"
+        onclick="copyElement('as')">
+        COPY AS
+    </button>
+</div>
+
+<div class="card">
+    <h3>KOP Custom Rank</h3>
+    <div id="kop" class="result"></div>
+
+    <button
+        class="copyBtn"
+        onclick="copyElement('kop')">
+        COPY KOP
+    </button>
+</div>
+
+<div class="card">
+    <h3>KEPALA Custom Rank</h3>
+    <div id="kepala" class="result"></div>
+
+    <button
+        class="copyBtn"
+        onclick="copyElement('kepala')">
+        COPY KEPALA
+    </button>
+</div>
+
+<div class="card">
+    <h3>EKOR Custom Rank</h3>
+    <div id="ekor" class="result"></div>
+
+    <button
+        class="copyBtn"
+        onclick="copyElement('ekor')">
+        COPY EKOR
+    </button>
+</div>
+
 </div>
 
 <script>
@@ -177,6 +228,17 @@ function analyze(){
  document.getElementById('hot').innerText=all.slice(0,10).map(x=>x[0]).join('');
  document.getElementById('cool').innerText=all.slice().reverse().slice(0,10).map(x=>x[0]).join('');
 }
+    function copyElement(id){
+
+    const text =
+        document.getElementById(id)
+        .innerText;
+
+    navigator.clipboard.writeText(text);
+
+    alert('Berhasil di copy');
+}
 </script>
+    
 </body>
 </html>
