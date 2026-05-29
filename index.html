@@ -78,14 +78,14 @@ function allDigitFreq(history){
 function analyze(){
  const freq=calculatePositionFrequency(history4D);
 
- document.getElementById('as').innerText=getCustomRank(rankDigits(freq.asFreq)).join('*');
- document.getElementById('kop').innerText=getCustomRank(rankDigits(freq.kopFreq)).join('*');
- document.getElementById('kepala').innerText=getCustomRank(rankDigits(freq.kepalaFreq)).join('*');
- document.getElementById('ekor').innerText=getCustomRank(rankDigits(freq.ekorFreq)).join('*');
+ document.getElementById('as').innerText=getCustomRank(rankDigits(freq.asFreq)).join('');
+ document.getElementById('kop').innerText=getCustomRank(rankDigits(freq.kopFreq)).join('');
+ document.getElementById('kepala').innerText=getCustomRank(rankDigits(freq.kepalaFreq)).join('');
+ document.getElementById('ekor').innerText=getCustomRank(rankDigits(freq.ekorFreq)).join('');
 
  const all=allDigitFreq(history4D);
- document.getElementById('hot').innerText=all.slice(0,10).map(x=>x[0]).join('*');
- document.getElementById('cool').innerText=all.slice().reverse().slice(0,10).map(x=>x[0]).join('*');
+ document.getElementById('hot').innerText=all.slice(0,10).map(x=>x[0]).join('');
+ document.getElementById('cool').innerText=all.slice().reverse().slice(0,10).map(x=>x[0]).join('');
 }
 </script>
 </body>
